@@ -1,62 +1,36 @@
-# Project Context: "DongTier" (Scrim Platform Ver.)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## 1. Project Overview
-**"DongTier"** is a location-based **League of Legends Scrim (5v5 Custom Match) Matching Platform**.
-It moves away from individual solo-rank leaderboards to focus on **Team-vs-Team** matchmaking within local neighborhoods.
+## Getting Started
 
-* **Core Loop:** Create Team $\rightarrow$ Find Opponent (via Board) $\rightarrow$ Play Match $\rightarrow$ Report Result $\rightarrow$ Gain Territory Points.
-* **Key Constraint:** No real-time chat/socket logic. Use external links (Kakao OpenChat/Discord) for communication.
+First, run the development server:
 
-## 2. Database Schema (Supabase) - *Redesigned*
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-### A. `teams` (The Central Unit)
-* `id` (uuid)
-* `name` (text): Team Name
-* `region_depth1/2/3`: Address (e.g., Seoul / Mapo-gu / Seogyo-dong)
-* `captain_id`: Link to `profiles.id`
-* `contact_link`: **URL for external chat (Kakao/Discord) - REQUIRED**
-* `avg_tier_score`: Auto-calculated average of members
-* `win_count`, `loss_count`
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### B. `profiles` (Users)
-* `team_id`: FK to `teams`
-* `position`: TOP, JUNGLE, MID, ADC, SUP
-* `tier_data`: Synced from Riot API
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### C. `matches` (The Board)
-* `id` (uuid)
-* `host_team_id`: Team creating the challenge
-* `challenger_team_id`: Team accepting the challenge (nullable initially)
-* `status`: OPEN $\rightarrow$ MATCHED $\rightarrow$ PENDING_RESULT $\rightarrow$ COMPLETED (or DISPUTED)
-* `scheduled_at`: Date/Time of the match
-* `target_tier`: e.g., "GOLD~PLATINUM"
-* `result_screenshot_url`: Evidence
-* `winner_team_id`
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## 3. UI/UX Priorities
+## Learn More
 
-### Page 1: The "Arena" (Main Feed)
-* A list of "Wanted" cards (Scrim requests).
-* Filters: Region (My Dong/Gu), Average Tier, Time.
-* **CTA:** Floating Action Button "Post a Challenge" (격문 쓰기).
+To learn more about Next.js, take a look at the following resources:
 
-### Page 2: Team Management
-* "My Team" Dashboard.
-* Invite Link Generator.
-* Roster View (Who is Top, who is Mid?).
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Page 3: "Territory War" (Map)
-* A visual map or leaderboard showing which "Dong" has the most wins.
-* Copy: "Seogyo-dong is currently dominating Mapo-gu!"
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## 4. Key Logic (Lean Development)
-* **Communication:** Do not build chat. When a match is accepted, simply reveal the `contact_link` to the other captain.
-* **Verification:** Use a "Mutual Agreement" system for results.
-    1.  Team A claims Victory.
-    2.  Team B gets a notification "Did Team A win?".
-    3.  If Team B clicks "Yes", update stats. If "No", flag as Dispute.
+## Deploy on Vercel
 
-## 5. Instructions for AI
-* Prioritize **Team Creation** and **Scrim Board** features over individual stats.
-* Use `react-kakao-maps-sdk` or simple SVG map for the Territory feature later.
-* All UI text in **Korean**.
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
