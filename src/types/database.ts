@@ -61,6 +61,14 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "teams_captain_id_fkey";
+            columns: ["captain_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       profiles: {
         Row: {
@@ -90,6 +98,14 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       matches: {
         Row: {
@@ -128,13 +144,40 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [
+          {
+            foreignKeyName: "matches_host_team_id_fkey";
+            columns: ["host_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "matches_challenger_team_id_fkey";
+            columns: ["challenger_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "matches_winner_team_id_fkey";
+            columns: ["winner_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      increment_win_count: {
+        Args: { team_id: string };
+        Returns: void;
+      };
+      increment_loss_count: {
+        Args: { team_id: string };
+        Returns: void;
+      };
     };
     Enums: {
       position: Position;
@@ -142,3 +185,8 @@ export interface Database {
     };
   };
 }
+
+// Helper types for convenience
+export type Team = Database["public"]["Tables"]["teams"]["Row"];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type Match = Database["public"]["Tables"]["matches"]["Row"];

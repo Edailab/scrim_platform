@@ -16,7 +16,6 @@ npm run lint     # Run ESLint
 - **Framework:** Next.js 14 (App Router) with TypeScript
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **Database:** Supabase (PostgreSQL)
-- **Maps:** react-kakao-maps-sdk
 
 ## Project Structure
 
@@ -37,7 +36,6 @@ src/
 Copy `.env.local.example` to `.env.local` and fill in:
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
-- `NEXT_PUBLIC_KAKAO_MAP_API_KEY` - Kakao Maps JavaScript API key
 
 ---
 
@@ -49,7 +47,7 @@ Copy `.env.local.example` to `.env.local` and fill in:
 It moves away from individual solo-rank leaderboards to focus on **Team-vs-Team** matchmaking within local neighborhoods.
 
 * **Core Loop:** Create Team → Find Opponent (via Board) → Play Match → Report Result → Gain Territory Points.
-* **Key Constraint:** No real-time chat/socket logic. Use external links (Kakao OpenChat/Discord) for communication.
+* **Key Constraint:** No real-time chat/socket logic. Use external links (Discord) for communication.
 
 ## Database Schema (Supabase)
 
