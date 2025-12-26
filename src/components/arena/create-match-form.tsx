@@ -36,7 +36,7 @@ const tiers = [
 export function CreateMatchForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [targetTier, setTargetTier] = useState("");
+  const [targetTier, setTargetTier] = useState("ALL");
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
@@ -85,7 +85,7 @@ export function CreateMatchForm() {
                 <SelectValue placeholder="티어 무관" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">티어 무관</SelectItem>
+                <SelectItem value="ALL">티어 무관</SelectItem>
                 {tiers.map((tier) => (
                   <SelectItem key={tier} value={tier}>
                     {tier}

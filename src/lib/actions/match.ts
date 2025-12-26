@@ -52,7 +52,7 @@ export async function createMatch(formData: FormData): Promise<MatchResult> {
   const { error } = await supabase.from("matches").insert({
     host_team_id: profile.team_id,
     scheduled_at: scheduledAt,
-    target_tier: targetTier || null,
+    target_tier: targetTier && targetTier !== "ALL" ? targetTier : null,
     status: "OPEN",
   });
 

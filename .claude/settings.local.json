@@ -15,7 +15,23 @@
       "Bash(git -C /mnt/c/Users/jrdo/playground/scrim_platform fetch origin)",
       "WebFetch(domain:github.com)",
       "Bash(\"/mnt/c/Program Files/GitHub CLI/gh.exe\" auth status)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebSearch",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp remove:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(npx:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(cat:*)",
+      "Bash(docker info:*)",
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "Bash(pkill:*)",
+      "Bash(rm:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(netstat:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)"
     ]
   }
 }
