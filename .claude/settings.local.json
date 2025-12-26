@@ -31,7 +31,10 @@
       "Bash(xargs kill:*)",
       "Bash(netstat:*)",
       "Bash(mkdir:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ]
   }
 }

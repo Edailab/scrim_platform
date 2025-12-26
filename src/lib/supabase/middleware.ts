@@ -30,7 +30,32 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Refresh session if expired - required for Server Components
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Pages that don't require Riot verification
+  const publicPaths = ["/login", "/register", "/profile", "/team/invite"];
+  const pathname = request.nextUrl.pathname;
+  const isPublicPath = publicPaths.some(
+    (path) => pathname === path || pathname.startsWith(path + "/")
+  );
+
+  // If user is logged in and not on a public path, check Riot verification
+  if (user && !isPublicPath) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("riot_verified_at")
+      .eq("id", user.id)
+      .single();
+
+    // Redirect to profile if not Riot verified
+    if (!profile?.riot_verified_at) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/profile";
+      return NextResponse.redirect(url);
+    }
+  }
 
   return supabaseResponse;
 }

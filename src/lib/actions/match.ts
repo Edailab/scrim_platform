@@ -42,6 +42,21 @@ export async function createMatch(formData: FormData): Promise<MatchResult> {
     return { error: "팀장만 격문을 올릴 수 있습니다." };
   }
 
+  // Check if team has at least 5 members and all are Riot verified
+  const { data: members } = await supabase
+    .from("profiles")
+    .select("id, riot_verified_at")
+    .eq("team_id", profile.team_id);
+
+  if (!members || members.length < 5) {
+    return { error: "팀원이 5명 이상이어야 격문을 올릴 수 있습니다." };
+  }
+
+  const unverifiedMembers = members.filter((m) => !m.riot_verified_at);
+  if (unverifiedMembers.length > 0) {
+    return { error: "모든 팀원이 라이엇 계정 인증을 완료해야 합니다." };
+  }
+
   const scheduledAt = formData.get("scheduled_at") as string;
   const targetTier = formData.get("target_tier") as string;
 

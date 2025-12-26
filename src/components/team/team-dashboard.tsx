@@ -13,8 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { TeamRoster } from "./team-roster";
 import { leaveTeam } from "@/lib/actions/team";
-import { MapPin, Link as LinkIcon, Trophy } from "lucide-react";
+import { MapPin, Link as LinkIcon, Trophy, UserPlus, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import { getInviteLink } from "@/lib/utils/invite";
 
 type Team = Database["public"]["Tables"]["teams"]["Row"];
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -31,10 +32,24 @@ export function TeamDashboard({
   currentUserId,
 }: TeamDashboardProps) {
   const [isLeaving, setIsLeaving] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const isCaptain = team.captain_id === currentUserId;
   const totalGames = team.win_count + team.loss_count;
   const winRate =
     totalGames > 0 ? Math.round((team.win_count / totalGames) * 100) : 0;
+  const inviteLink = getInviteLink(team.invite_code);
+
+  async function copyToClipboard(text: string, type: "code" | "link") {
+    await navigator.clipboard.writeText(text);
+    if (type === "code") {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    } else {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  }
 
   async function handleLeaveTeam() {
     if (
@@ -120,6 +135,60 @@ export function TeamDashboard({
           </CardContent>
         </Card>
       </div>
+
+      {isCaptain && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              팀원 초대
+            </CardTitle>
+            <CardDescription>
+              초대 코드나 링크를 팀원에게 공유하세요
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">초대 코드</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-muted px-3 py-2 rounded-md font-mono text-lg tracking-wider">
+                  {team.invite_code}
+                </code>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(team.invite_code, "code")}
+                >
+                  {copiedCode ? (
+                    <Check className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">초대 링크</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-muted px-3 py-2 rounded-md text-sm truncate">
+                  {inviteLink}
+                </code>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(inviteLink, "link")}
+                >
+                  {copiedLink ? (
+                    <Check className="h-4 w-4 text-green-500" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <TeamRoster members={members} captainId={team.captain_id} />
 

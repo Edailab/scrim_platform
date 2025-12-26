@@ -11,10 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, Users, Swords } from "lucide-react";
+import { User, LogOut, Users, Swords, Trophy } from "lucide-react";
 
 const navItems = [
   { href: "/arena", label: "아레나", icon: Swords },
+  { href: "/ranking", label: "랭킹", icon: Trophy },
   { href: "/team", label: "내 팀", icon: Users },
   { href: "/matches", label: "내 경기", icon: Swords },
 ];
@@ -48,7 +49,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-end space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" suppressHydrationWarning>
                 <User className="h-5 w-5" />
                 <span className="sr-only">프로필 메뉴</span>
               </Button>

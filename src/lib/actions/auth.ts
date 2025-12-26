@@ -44,6 +44,7 @@ export async function signIn(formData: FormData): Promise<AuthResult> {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const redirectTo = formData.get("redirectTo") as string;
 
   if (!email || !password) {
     return { error: "이메일과 비밀번호를 입력해주세요." };
@@ -61,7 +62,7 @@ export async function signIn(formData: FormData): Promise<AuthResult> {
     return { error: error.message };
   }
 
-  redirect("/arena");
+  redirect(redirectTo || "/arena");
 }
 
 export async function signOut(): Promise<void> {

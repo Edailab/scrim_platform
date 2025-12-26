@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { generateInviteCode } from "@/lib/utils/invite";
 
 export type TeamResult = {
   error?: string;
@@ -40,7 +41,8 @@ export async function createTeam(formData: FormData): Promise<TeamResult> {
     return { error: "모든 필드를 입력해주세요." };
   }
 
-  // Create team
+  // Create team with invite code
+  const inviteCode = generateInviteCode();
   const { data: team, error: teamError } = await supabase
     .from("teams")
     .insert({
@@ -50,6 +52,7 @@ export async function createTeam(formData: FormData): Promise<TeamResult> {
       region_depth3: regionDepth3,
       captain_id: user.id,
       contact_link: contactLink,
+      invite_code: inviteCode,
     })
     .select()
     .single();
@@ -164,10 +167,7 @@ export async function leaveTeam(): Promise<TeamResult> {
   redirect("/team");
 }
 
-export async function joinTeam(
-  teamId: string,
-  position: string
-): Promise<TeamResult> {
+export async function joinTeamByCode(code: string): Promise<TeamResult> {
   const supabase = await createClient();
 
   const {
@@ -178,24 +178,36 @@ export async function joinTeam(
     return { error: "로그인이 필요합니다." };
   }
 
-  // Check if user already has a team
+  // Check if user is Riot verified and doesn't already have a team
   const { data: profile } = await supabase
     .from("profiles")
-    .select("team_id")
+    .select("team_id, riot_verified_at")
     .eq("id", user.id)
     .single();
+
+  if (!profile?.riot_verified_at) {
+    return { error: "라이엇 계정 인증이 필요합니다." };
+  }
 
   if (profile?.team_id) {
     return { error: "이미 팀에 소속되어 있습니다." };
   }
 
-  // Join team
+  // Find team by invite code
+  const { data: team } = await supabase
+    .from("teams")
+    .select("id, name")
+    .eq("invite_code", code.toUpperCase())
+    .single();
+
+  if (!team) {
+    return { error: "유효하지 않은 초대 코드입니다." };
+  }
+
+  // Join team (position not set - can be set later)
   const { error } = await supabase
     .from("profiles")
-    .update({
-      team_id: teamId,
-      position: position as "TOP" | "JUNGLE" | "MID" | "ADC" | "SUP",
-    })
+    .update({ team_id: team.id })
     .eq("id", user.id);
 
   if (error) {

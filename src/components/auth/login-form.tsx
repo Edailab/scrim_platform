@@ -15,13 +15,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function LoginForm() {
+interface LoginFormProps {
+  redirectTo?: string;
+}
+
+export function LoginForm({ redirectTo }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
     setError(null);
+
+    if (redirectTo) {
+      formData.set("redirectTo", redirectTo);
+    }
 
     const result = await signIn(formData);
 

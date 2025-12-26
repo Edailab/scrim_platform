@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Swords, Users, Trophy, User } from "lucide-react";
+import { Swords, Users, Trophy, CalendarDays } from "lucide-react";
 
 const navItems = [
   { href: "/arena", label: "아레나", icon: Swords },
+  { href: "/ranking", label: "랭킹", icon: Trophy },
   { href: "/team", label: "팀", icon: Users },
-  { href: "/matches", label: "경기", icon: Trophy },
-  { href: "/profile", label: "프로필", icon: User },
+  { href: "/matches", label: "경기", icon: CalendarDays },
 ];
 
 export function MobileNav() {
