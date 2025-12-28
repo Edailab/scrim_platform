@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { connectRiotAccount } from "@/lib/actions/riot";
+import {
+  initiateVerification,
+  confirmVerification,
+  cancelVerification,
+} from "@/lib/actions/riot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,19 +16,55 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Gamepad2 } from "lucide-react";
+import { Gamepad2, ArrowLeft, CheckCircle2 } from "lucide-react";
+
+// Data Dragon URL for profile icons
+const DDRAGON_VERSION = "14.24.1";
+const getIconUrl = (iconId: number) =>
+  `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/profileicon/${iconId}.png`;
+
+type Step = "input" | "verify";
+
+interface VerificationData {
+  requiredIconId: number;
+  gameName: string;
+  tagLine: string;
+}
 
 export function RiotConnectForm() {
+  const [step, setStep] = useState<Step>("input");
   const [riotId, setRiotId] = useState("");
+  const [verificationData, setVerificationData] =
+    useState<VerificationData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleInitiate(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    const result = await connectRiotAccount(riotId);
+    const result = await initiateVerification(riotId);
+
+    if (result.error) {
+      setError(result.error);
+      setIsLoading(false);
+    } else if (result.success && result.requiredIconId) {
+      setVerificationData({
+        requiredIconId: result.requiredIconId,
+        gameName: result.gameName!,
+        tagLine: result.tagLine!,
+      });
+      setStep("verify");
+      setIsLoading(false);
+    }
+  }
+
+  async function handleConfirm() {
+    setIsLoading(true);
+    setError(null);
+
+    const result = await confirmVerification();
 
     if (result.error) {
       setError(result.error);
@@ -33,6 +73,83 @@ export function RiotConnectForm() {
       // Success - page will be revalidated
       window.location.reload();
     }
+  }
+
+  async function handleCancel() {
+    setIsLoading(true);
+    await cancelVerification();
+    setStep("input");
+    setVerificationData(null);
+    setError(null);
+    setIsLoading(false);
+  }
+
+  if (step === "verify" && verificationData) {
+    return (
+      <Card className="max-w-md mx-auto">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+            <CheckCircle2 className="h-8 w-8 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">계정 인증</CardTitle>
+          <CardDescription>
+            {verificationData.gameName}#{verificationData.tagLine}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="text-center space-y-4">
+            <p className="text-sm text-muted-foreground">
+              계정 소유권을 확인하기 위해 아래 아이콘으로 프로필 아이콘을
+              변경해주세요.
+            </p>
+
+            <div className="flex flex-col items-center gap-2">
+              <img
+                src={getIconUrl(verificationData.requiredIconId)}
+                alt="Required icon"
+                className="w-24 h-24 rounded-lg border-2 border-primary shadow-lg"
+              />
+              <p className="text-xs text-muted-foreground">
+                아이콘 ID: {verificationData.requiredIconId}
+              </p>
+            </div>
+
+            <div className="bg-muted p-4 rounded-lg text-sm text-left space-y-2">
+              <p className="font-medium">변경 방법:</p>
+              <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                <li>리그 오브 레전드 클라이언트 실행</li>
+                <li>프로필 → 아이콘 변경 클릭</li>
+                <li>위 아이콘으로 변경 후 저장</li>
+                <li>아래 &quot;인증 확인&quot; 버튼 클릭</li>
+              </ol>
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-sm text-destructive text-center">{error}</p>
+          )}
+
+          <div className="space-y-2">
+            <Button
+              onClick={handleConfirm}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? "확인 중..." : "인증 확인"}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleCancel}
+              className="w-full"
+              disabled={isLoading}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              다시 시작
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -49,7 +166,7 @@ export function RiotConnectForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleInitiate} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="riot_id">라이엇 ID</Label>
             <Input
@@ -70,7 +187,7 @@ export function RiotConnectForm() {
           )}
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "인증 중..." : "계정 연결"}
+            {isLoading ? "확인 중..." : "인증 시작"}
           </Button>
         </form>
       </CardContent>

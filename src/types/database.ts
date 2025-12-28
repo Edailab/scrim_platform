@@ -89,6 +89,8 @@ export interface Database {
           tier_rank: string | null;
           tier_lp: number | null;
           riot_verified_at: string | null;
+          pending_riot_id: string | null;
+          required_icon_id: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -107,6 +109,8 @@ export interface Database {
           tier_rank?: string | null;
           tier_lp?: number | null;
           riot_verified_at?: string | null;
+          pending_riot_id?: string | null;
+          required_icon_id?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -125,6 +129,8 @@ export interface Database {
           tier_rank?: string | null;
           tier_lp?: number | null;
           riot_verified_at?: string | null;
+          pending_riot_id?: string | null;
+          required_icon_id?: number | null;
           created_at?: string;
           updated_at?: string;
         };

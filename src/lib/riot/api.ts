@@ -5,7 +5,6 @@ import {
   RiotVerificationResult,
 } from "./types";
 
-const RIOT_API_KEY = process.env.RIOT_API_KEY;
 const PLATFORM = "kr"; // Korea platform
 const REGIONAL = "asia"; // Asia regional routing
 
@@ -20,13 +19,15 @@ class RiotApiError extends Error {
 }
 
 async function fetchRiotApi<T>(url: string): Promise<T> {
-  if (!RIOT_API_KEY) {
+  const apiKey = process.env.RIOT_API_KEY;
+
+  if (!apiKey) {
     throw new RiotApiError("Riot API key not configured", 500);
   }
 
   const response = await fetch(url, {
     headers: {
-      "X-Riot-Token": RIOT_API_KEY,
+      "X-Riot-Token": apiKey,
     },
     next: { revalidate: 0 }, // Don't cache
   });
@@ -59,11 +60,11 @@ export async function getSummonerByPuuid(puuid: string): Promise<Summoner> {
   return fetchRiotApi<Summoner>(url);
 }
 
-// Fetch ranked data by summoner ID
+// Fetch ranked data by PUUID
 export async function getLeagueEntries(
-  summonerId: string
+  puuid: string
 ): Promise<LeagueEntry[]> {
-  const url = `https://${PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}`;
+  const url = `https://${PLATFORM}.api.riotgames.com/lol/league/v4/entries/by-puuid/${puuid}`;
   return fetchRiotApi<LeagueEntry[]>(url);
 }
 
@@ -98,7 +99,7 @@ export async function verifyRiotAccount(
     }
 
     // Step 4: Get ranked data
-    const leagueEntries = await getLeagueEntries(summoner.id);
+    const leagueEntries = await getLeagueEntries(account.puuid);
 
     // Find solo queue entry
     const soloQueue = leagueEntries.find(
@@ -136,6 +137,12 @@ export async function verifyRiotAccount(
         return {
           success: false,
           error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.",
+        };
+      }
+      if (error.statusCode === 401 || error.statusCode === 403) {
+        return {
+          success: false,
+          error: "API 키가 만료되었거나 유효하지 않습니다. 관리자에게 문의하세요.",
         };
       }
       if (error.statusCode === 500) {
