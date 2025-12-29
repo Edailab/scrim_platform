@@ -22,18 +22,18 @@ export type InitiateResult = {
   tagLine?: string;
 };
 
-// Common default profile icons that all players have access to
+// Default profile icons that ALL players have access to (icons 0-9)
 const VERIFICATION_ICONS = [
-  29, // Poro icon
-  28, // Blue minion
-  27, // Red minion
-  26, // Melee minion
-  25, // Caster minion
-  23, // Siege minion
-  22, // Super minion
-  21, // Baron
-  20, // Dragon
-  19, // Blue buff
+  0, // Default blue summoner icon
+  1, // Ashe
+  2, // Twisted Fate
+  3, // Morgana
+  4, // Teemo
+  5, // Ryze
+  6, // Annie
+  7, // Sivir
+  8, // Jax
+  9, // Warwick
 ];
 
 export async function connectRiotAccount(riotId: string): Promise<RiotResult> {
@@ -210,9 +210,12 @@ export async function initiateVerification(
       return { error: "이미 다른 계정에서 사용 중인 라이엇 계정입니다." };
     }
 
-    // Generate random required icon
+    // Generate random required icon (excluding user's current icon)
+    const availableIcons = VERIFICATION_ICONS.filter(
+      (iconId) => iconId !== summoner.profileIconId
+    );
     const requiredIconId =
-      VERIFICATION_ICONS[Math.floor(Math.random() * VERIFICATION_ICONS.length)];
+      availableIcons[Math.floor(Math.random() * availableIcons.length)];
 
     // Store pending verification data
     const { error: updateError } = await supabase

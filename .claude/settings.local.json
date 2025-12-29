@@ -36,7 +36,8 @@
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(tree:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ip route:*)"
     ]
   }
 }
